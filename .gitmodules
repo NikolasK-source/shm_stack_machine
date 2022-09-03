@@ -1,0 +1,9 @@
+[submodule "libs/cxxshm"]
+	path = libs/cxxshm
+	url = https://github.com/NikolasK-source/cxxshm.git
+[submodule "libs/cxxsignal"]
+	path = libs/cxxsignal
+	url = https://github.com/NikolasK-source/cxxsignal.git
+[submodule "libs/cxxendian"]
+	path = libs/cxxendian
+	url = https://github.com/NikolasK-source/cxxendian.git
