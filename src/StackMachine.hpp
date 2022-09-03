@@ -170,6 +170,74 @@ public:
 
     /******************************************************************************************************************/
     /******************************************************************************************************************/
+    /* Logic instructions                                                                                             */
+    /******************************************************************************************************************/
+    /******************************************************************************************************************/
+
+    /**
+     * @brief logic inversion (NOT)
+     * @details any nonzero value is treated as true
+     * @exception std::runtime_error to few elements on stack
+     */
+    void linv();
+
+    /**
+     * @brief logic and
+     * @details any nonzero value is treated as true
+     * @exception std::runtime_error to few elements on stack
+     */
+    void land();
+
+    /**
+     * @brief logic or
+     * @details any nonzero value is treated as true
+     * @exception std::runtime_error to few elements on stack
+     */
+    void lor();
+
+    /**
+     * @brief logic exclusive or
+     * @details any nonzero value is treated as true
+     * @exception std::runtime_error to few elements on stack
+     */
+    void lxor();
+
+    /******************************************************************************************************************/
+    /******************************************************************************************************************/
+    /* Bitwise instructions                                                                                           */
+    /******************************************************************************************************************/
+    /******************************************************************************************************************/
+
+    /**
+     * @brief bitwise inversion
+     * @details any nonzero value is treated as true
+     * @exception std::runtime_error to few elements on stack
+     */
+    void binv();
+
+    /**
+     * @brief bitwise and
+     * @details any nonzero value is treated as true
+     * @exception std::runtime_error to few elements on stack
+     */
+    void band();
+
+    /**
+     * @brief bitwise or
+     * @details any nonzero value is treated as true
+     * @exception std::runtime_error to few elements on stack
+     */
+    void bor();
+
+    /**
+     * @brief bitwise exclusive or
+     * @details any nonzero value is treated as true
+     * @exception std::runtime_error to few elements on stack
+     */
+    void bxor();
+
+    /******************************************************************************************************************/
+    /******************************************************************************************************************/
     /* Data conversion instructions                                                                                   */
     /******************************************************************************************************************/
     /******************************************************************************************************************/

@@ -1,0 +1,54 @@
+# block that defines the memory objects that are used
+BEGIN_MEM
+    # use shared memory modbus_DO with name do; 1 byte cell size; work on image
+    shm modbus_DO do 1 1
+
+    # create 1 cell local memory (64bit per cell) with name lmem
+    local lmem 1
+END_MEM
+
+BEGIN_SETTINGS
+    # program cycle time in milliseconds
+    CYCLE_MS 100
+END_SETTINGS
+
+# block that defines the program variables
+BEGIN_VAR
+#   address    data_type    alias name
+    do@1.0     b            trigger          # toggle ff trigger signal is at bit 0 cell 1 of memory do
+    do@2.0     b            q                # toggle ff output is at bit 0 cell 1 of memory do
+    do@3.0     b            nq               # toggle ff inverted output is at bit 0 cell 1 of memory do
+    lmem@0.0   b            old_trigger      # previous trigger signal for edge detection
+    const      uint         two
+END_VAR
+
+# variable initialization (executed once)
+BEGIN_INIT
+    old_trigger 0
+    q 0
+    nq 1
+    two 2
+END_INIT
+
+# program (cyclic execution)
+BEGIN_PROGRAM
+    # check rising edge
+    PUSH two
+    PUSH trigger
+    DUP
+    PUSH old_trigger
+    NE
+    ADD
+    EQ
+    # tos is 1 if rising edge is detected
+
+    JZ END
+
+    PUSH q
+    DUP
+    INV
+    POP q
+    POP nq
+
+    $END
+END_PROGRAM

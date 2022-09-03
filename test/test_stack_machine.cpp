@@ -112,4 +112,76 @@ int main() {
     assert(machine.size() == 1);
     assert(machine.pop() == sum);
     assert(machine.size() == 0);
+
+    machine.push(100);
+    machine.push(4);
+    machine.lxor();
+    assert(machine.pop() == 0);
+
+    machine.push(100);
+    machine.push(0);
+    machine.lxor();
+    assert(machine.pop() == 1);
+
+    machine.push(0);
+    machine.push(1);
+    machine.lxor();
+    assert(machine.pop() == 1);
+
+    machine.push(1);
+    machine.push(1);
+    machine.lxor();
+    assert(machine.pop() == 0);
+
+    machine.push(0);
+    machine.push(0);
+    machine.land();
+    assert(machine.pop() == 0);
+
+    machine.push(1);
+    machine.push(0);
+    machine.land();
+    assert(machine.pop() == 0);
+
+    machine.push(0);
+    machine.push(1);
+    machine.land();
+    assert(machine.pop() == 0);
+
+    machine.push(1);
+    machine.push(1);
+    machine.land();
+    assert(machine.pop() == 1);
+
+    machine.push(0);
+    machine.push(0);
+    machine.lor();
+    assert(machine.pop() == 0);
+
+    machine.push(1);
+    machine.push(0);
+    machine.lor();
+    assert(machine.pop() == 1);
+
+    machine.push(0);
+    machine.push(1);
+    machine.lor();
+    assert(machine.pop() == 1);
+
+    machine.push(1);
+    machine.push(1);
+    machine.lor();
+    assert(machine.pop() == 1);
+
+    machine.push(0);
+    machine.linv();
+    assert(machine.pop() == 1);
+
+    machine.push(1);
+    machine.linv();
+    assert(machine.pop() == 0);
+
+    machine.push(456123);
+    machine.linv();
+    assert(machine.pop() == 0);
 }
