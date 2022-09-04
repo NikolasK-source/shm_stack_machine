@@ -184,4 +184,24 @@ int main() {
     machine.push(456123);
     machine.linv();
     assert(machine.pop() == 0);
+
+    machine.push(100);
+    machine.push(100);
+    machine.eq();
+    assert(machine.pop() == 1);
+
+    machine.push(100);
+    machine.push(200);
+    machine.eq();
+    assert(machine.pop() == 0);
+
+    machine.push(100);
+    machine.push(100);
+    machine.ne();
+    assert(machine.pop() == 0);
+
+    machine.push(100);
+    machine.push(200);
+    machine.ne();
+    assert(machine.pop() == 1);
 }

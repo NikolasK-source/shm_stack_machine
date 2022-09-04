@@ -1,0 +1,41 @@
+#
+# Sine from system time
+#
+# target = a * sin(systime() * b) + c
+#
+
+__MEM
+    # use shared memory modbus_AO with name do; 2 byte cell size; without image
+    shm modbus_AO mem 2 0
+
+__SETTINGS
+    # program cycle time in milliseconds
+    CYCLE_MS 100
+
+    # memory endianness
+    ENDIAN little
+    REVERSE_CELL_BYTES 0
+
+__VAR
+#   address     data type   name
+    mem@0x42    f32         target
+    const       f64         a
+    const       f64         b
+    const       f64         c
+
+__INIT
+    a 1
+    b 0.05
+    c 0
+
+__PROGRAM
+    PUSH c
+    PUSH a
+    PUSH b
+    PUSH STIME
+    MUL
+    SIN
+    MUL
+    ADD
+    DTOF
+    POP target

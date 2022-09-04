@@ -11,6 +11,7 @@
 class StackMachine {
 public:
     typedef uint64_t stack_t;
+    typedef int64_t  signed_stack_t;
 
 private:
     static constexpr std::size_t DEFAULT_MAX_STACK = 4096 / sizeof(stack_t);
@@ -23,6 +24,7 @@ public:
      * @brief create stack machine
      * @param max_stack max stack size
      * @exception std::invalid_argument max stack size to small
+     * @exception std::bad_alloc failed to allocate memory for stack
      */
     explicit StackMachine(std::size_t max_stack = DEFAULT_MAX_STACK);
 
@@ -36,6 +38,7 @@ public:
      * @brief push tat to the stack
      * @param data data to push
      * @exception std::runtime_error stack is full
+     * @exception std::bad_alloc failed to allocate memory for stack
      */
     void push(stack_t data);
 
@@ -57,8 +60,15 @@ public:
      * @brief duplicate top of stack
      * @exception std::runtime_error stack is empty
      * @exception std::runtime_error stack is full
+     * @exception std::bad_alloc failed to allocate memory for stack
      */
     void dup();
+
+    /**
+     * @brief clear stack
+     * @exception std::bad_alloc failed to allocate memory for stack
+     */
+    void clr();
 
     /**
      * @brief get current stack size
@@ -85,28 +95,52 @@ public:
     void sub();
 
     /**
-     * @brief integer multiplication
+     * @brief integer multiplication (unsigned)
      * @exception std::runtime_error to few elements on stack
      */
     void mul();
 
     /**
-     * @brief integer division
+     * @brief integer multiplication (signed)
+     * @exception std::runtime_error to few elements on stack
+     */
+    void muls();
+
+    /**
+     * @brief integer division (unsigned)
      * @exception std::runtime_error to few elements on stack
      */
     void div();
 
     /**
-     * @brief integer modulo
+     * @brief integer division (signed)
+     * @exception std::runtime_error to few elements on stack
+     */
+    void divs();
+
+    /**
+     * @brief integer modulo (unsigned)
      * @exception std::runtime_error to few elements on stack
      */
     void mod();
 
     /**
-     * @brief integer exponentiation
+     * @brief integer modulo (signed)
+     * @exception std::runtime_error to few elements on stack
+     */
+    void mods();
+
+    /**
+     * @brief integer exponentiation (unsigned)
      * @exception std::runtime_error to few elements on stack
      */
     void pow();
+
+    /**
+     * @brief integer exponentiation (signed)
+     * @exception std::runtime_error to few elements on stack
+     */
+    void pows();
 
     /**
      * @brief float addition
@@ -277,6 +311,195 @@ public:
      * @exception std::runtime_error to few elements on stack
      */
     void dtof();
+
+    /******************************************************************************************************************/
+    /******************************************************************************************************************/
+    /* Relational instructions                                                                                        */
+    /******************************************************************************************************************/
+    /******************************************************************************************************************/
+
+    /**
+     * @brief check equal
+     * @exception std::runtime_error to few elements on stack
+     */
+    void eq();
+
+    /**
+     * @brief check not equal
+     * @exception std::runtime_error to few elements on stack
+     */
+    void ne();
+
+    /**
+     * @brief check less than (unsigned integer)
+     * @exception std::runtime_error to few elements on stack
+     */
+    void lt();
+
+    /**
+     * @brief check greater than (unsigned integer)
+     * @exception std::runtime_error to few elements on stack
+     */
+    void gt();
+
+    /**
+     * @brief check less than or equal (unsigned integer)
+     * @exception std::runtime_error to few elements on stack
+     */
+    void le();
+
+    /**
+     * @brief check greater than or equal (unsigned integer)
+     * @exception std::runtime_error to few elements on stack
+     */
+    void ge();
+
+    /**
+     * @brief check less than (signed integer)
+     * @exception std::runtime_error to few elements on stack
+     */
+    void lts();
+
+    /**
+     * @brief check greater than (signed integer)
+     * @exception std::runtime_error to few elements on stack
+     */
+    void gts();
+
+    /**
+     * @brief check less than or equal (signed integer)
+     * @exception std::runtime_error to few elements on stack
+     */
+    void les();
+
+    /**
+     * @brief check greater than or equal (signed integer)
+     * @exception std::runtime_error to few elements on stack
+     */
+    void ges();
+
+    /**
+     * @brief check less than (64 bit float)
+     * @exception std::runtime_error to few elements on stack
+     */
+    void ltd();
+
+    /**
+     * @brief check greater than (64 bit float)
+     * @exception std::runtime_error to few elements on stack
+     */
+    void gtd();
+
+    /**
+     * @brief check less than or equal (64 bit float)
+     * @exception std::runtime_error to few elements on stack
+     */
+    void led();
+
+    /**
+     * @brief check greater than or equal (64 bit float)
+     * @exception std::runtime_error to few elements on stack
+     */
+    void ged();
+
+    /******************************************************************************************************************/
+    /******************************************************************************************************************/
+    /* Floating point math instructions                                                                               */
+    /******************************************************************************************************************/
+    /******************************************************************************************************************/
+
+    /**
+     * @brief get absolute value
+     * @details 64 float only
+     * @exception std::runtime_error to few elements on stack
+     */
+    void abs();
+
+    /**
+     * @brief get square root
+     * @details 64 float only
+     * @exception std::runtime_error to few elements on stack
+     */
+    void sqrt();
+
+    /**
+     * @brief get cubic root
+     * @details 64 float only
+     * @exception std::runtime_error to few elements on stack
+     */
+    void cbrt();
+
+    /**
+     * @brief get the natural (base e) logarithm
+     * @details 64 float only
+     * @exception std::runtime_error to few elements on stack
+     */
+    void ln();
+
+    /**
+     * @brief get the common (base 10) logarithm
+     * @details 64 float only
+     * @exception std::runtime_error to few elements on stack
+     */
+    void log();
+
+    /**
+     * @brief get the binary (base 2) logarithm
+     * @details 64 float only
+     * @exception std::runtime_error to few elements on stack
+     */
+    void lg();
+
+    /**
+     * @brief get sine
+     * @details 64 float only
+     * @exception std::runtime_error to few elements on stack
+     */
+    void sin();
+
+    /**
+     * @brief get cosines
+     * @details 64 float only
+     * @exception std::runtime_error to few elements on stack
+     */
+    void cos();
+
+    /**
+     * @brief get tangent
+     * @details 64 float only
+     * @exception std::runtime_error to few elements on stack
+     */
+    void tan();
+
+    /**
+     * @brief get the principal value of the arc sine
+     * @details 64 float only
+     * @exception std::runtime_error to few elements on stack
+     */
+    void asin();
+
+    /**
+     * @brief get the principal value of the arc cosine
+     * @details 64 float only
+     * @exception std::runtime_error to few elements on stack
+     */
+    void acos();
+
+    /**
+     * @brief get the principal value of the arc tangent
+     * @details 64 float only
+     * @exception std::runtime_error to few elements on stack
+     */
+    void atan();
+
+    /**
+     * @brief Computes the arc tangent of x an y
+     * @details 64 float only
+     *      X is left operand
+     *      Y is right operand (tos)
+     * @exception std::runtime_error to few elements on stack
+     */
+    void atanxy();
 
 private:
     /**
