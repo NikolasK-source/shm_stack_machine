@@ -16,8 +16,10 @@
 
 class Machine {
 private:
+    bool                                                     verbose;
     std::size_t                                              cycle_time_ms = 1000;
     std::size_t                                              cycles        = 0;
+    std::size_t                                              cycle_counter = 0;
     StackMachine                                             stack_machine;
     std::unordered_map<std::string, std::unique_ptr<Memory>> mem_map;
     std::unordered_map<std::string, var_t>                   var_map;
@@ -30,7 +32,8 @@ private:
     // TODO instruction list
     // TODO instruction pointer
 public:
-    explicit Machine(std::size_t stack_size) : stack_machine(stack_size) {}
+    explicit Machine(std::size_t stack_size, bool verbose, bool debug)
+        : stack_machine(debug, stack_size), verbose(verbose) {}
 
     void load_file(const std::string &path);
 

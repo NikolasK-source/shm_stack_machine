@@ -7,6 +7,7 @@
 
 #include "special_instructions.hpp"
 #include "split_string.hpp"
+#include "time_str.hpp"
 
 #include <algorithm>
 #include <fstream>
@@ -76,6 +77,11 @@ static double parse_double(const std::string &str) {
 }
 
 void Machine::load_file(const std::string &path) {
+    if (verbose) {
+        std::cerr << now_str() << " >>>>> read config from file" << std::endl;
+        std::cerr << now_str() << " open file " << path << std::endl;
+    }
+
     std::ifstream input(path);
 
     if (!input.is_open()) throw std::runtime_error("failed to open input file");
@@ -87,6 +93,7 @@ void Machine::load_file(const std::string &path) {
     std::vector<std::string>  section_program;
     std::vector<std::string> *cur_section = nullptr;
 
+    if (verbose) std::cerr << now_str() << " read file " << std::endl;
     std::string line;
     while (std::getline(input, line)) {
         line = std::regex_replace(line, std::regex("^ +| +$|( ) +"), "$1");
@@ -127,16 +134,30 @@ void Machine::load_file(const std::string &path) {
 
     if (input.bad()) throw std::runtime_error("failed to read input file");
 
+    if (verbose) std::cerr << now_str() << " parse section __SETTINGS" << std::endl;
     parse_settings(section_settings);
+
+    if (verbose) std::cerr << now_str() << " parse section __MEM" << std::endl;
     parse_mem(section_mem);
+
+    if (verbose) std::cerr << now_str() << " parse section __VAR" << std::endl;
     parse_var(section_var);
+
+    if (verbose) std::cerr << now_str() << " parse section __INIT" << std::endl;
     parse_init(section_init);
+
+    if (verbose) std::cerr << now_str() << " parse section __PROGRAM" << std::endl;
     parse_program(section_program);
 }
 
 void Machine::init() {
+    if (verbose) std::cerr << now_str() << " >>>>> initialize variables" << std::endl;
     for (auto &a : var_map) {
         auto &var = a.second;
+
+        if (verbose)
+            std::cerr << now_str() << " initialize variable " << a.first << " with " << std::hex << var.init_value
+                      << std::endl;
 
         if (var.init) {
             instr::POP_var pop(stack_machine, var);
@@ -147,6 +168,10 @@ void Machine::init() {
 }
 
 void Machine::run() {
+    if (verbose) {
+        std::cerr << now_str() << " >>>>> Execute cycle " << std::dec << cycle_counter << std::endl;
+        ++cycle_counter;
+    }
     ip = 0;
     while (true) {
         auto instr = instructions.at(ip).get();
@@ -683,6 +708,8 @@ void Machine::parse_program(const std::vector<std::string> &data) {
             instructions.emplace_back(std::make_unique<instr::SIN>(stack_machine));
         } else if (instr == "COS") {
             instructions.emplace_back(std::make_unique<instr::COS>(stack_machine));
+        } else if (instr == "TAN") {
+            instructions.emplace_back(std::make_unique<instr::TAN>(stack_machine));
         } else if (instr == "ASIN") {
             instructions.emplace_back(std::make_unique<instr::ASIN>(stack_machine));
         } else if (instr == "ACOS") {

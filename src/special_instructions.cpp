@@ -19,6 +19,8 @@ static double get_time() {
     struct timespec tp;
     int             tmp = clock_gettime(CLOCK_ID, &tp);
     if (tmp != 0) throw std::system_error(errno, std::generic_category(), "call of clock_gettime failed");
+
+    return static_cast<double>(tp.tv_sec) + static_cast<double>(tp.tv_nsec) / 1000000000.0;
 }
 
 bool instr_special::PUSH_stime::exec() {

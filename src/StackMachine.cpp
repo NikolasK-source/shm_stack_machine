@@ -5,9 +5,16 @@
 
 #include "StackMachine.hpp"
 
+#include "time_str.hpp"
+
 #include <array>
 #include <cmath>
+#include <iomanip>
+#include <iostream>
 #include <stdexcept>
+
+static constexpr int FUNC_W = 12;
+
 /**********************************************************************************************************************/
 /**********************************************************************************************************************/
 /* Constants                                                                                                          */
@@ -84,7 +91,7 @@ static T ipow(T x, T p) {
 /**********************************************************************************************************************/
 /**********************************************************************************************************************/
 
-StackMachine::StackMachine(std::size_t max_stack) : MAX_STACK(max_stack) {
+StackMachine::StackMachine(bool verbose, std::size_t max_stack) : MAX_STACK(max_stack), verbose(verbose) {
     if (MAX_STACK < MIN_STACK) throw std::invalid_argument("max stack size to small");
 }
 
@@ -96,6 +103,7 @@ StackMachine::StackMachine(std::size_t max_stack) : MAX_STACK(max_stack) {
 
 void StackMachine::push(StackMachine::stack_t data) {
     if (stack.size() >= MAX_STACK) throw std::runtime_error("stack full");
+    if (verbose) std::cerr << now_str() << std::setw(FUNC_W) << __func__ << ' ' << std::hex << data << std::endl;
     stack.push(data);
 }
 
@@ -106,19 +114,31 @@ StackMachine::stack_t StackMachine::_pop() {
 }
 
 StackMachine::stack_t StackMachine::pop() {
-    auto data = get();
+    if (stack.empty()) throw std::runtime_error("stack empty");
+    auto data = stack.top();
     stack.pop();
+    if (verbose) std::cerr << now_str() << std::setw(FUNC_W) << __func__ << ' ' << std::hex << data << std::endl;
     return data;
 }
 
 StackMachine::stack_t StackMachine::get() const {
     if (stack.empty()) throw std::runtime_error("stack empty");
+    if (verbose) std::cerr << now_str() << std::setw(FUNC_W) << __func__ << ' ' << std::hex << stack.top() << std::endl;
     return stack.top();
 }
 
-void StackMachine::clr() { stack = std::stack<StackMachine::stack_t>(); }
+void StackMachine::clr() {
+    stack = std::stack<StackMachine::stack_t>();
+    if (verbose) std::cerr << now_str() << std::setw(FUNC_W) << __func__ << std::endl;
+}
 
-void StackMachine::dup() { push(get()); }
+void StackMachine::dup() {
+    bool tmp = verbose;
+    verbose  = false;
+    push(get());
+    verbose = tmp;
+    if (verbose) std::cerr << now_str() << std::setw(FUNC_W) << __func__ << std::endl;
+}
 
 /**********************************************************************************************************************/
 /**********************************************************************************************************************/
@@ -132,6 +152,9 @@ void StackMachine::add() {
     const auto R = _pop();
     const auto L = _pop();
     stack.push(L + R);
+    if (verbose)
+        std::cerr << std::dec << now_str() << std::setw(FUNC_W) << __func__ << ' ' << L << " + " << R << " = "
+                  << stack.top() << std::endl;
 }
 
 void StackMachine::sub() {
@@ -139,6 +162,9 @@ void StackMachine::sub() {
     const auto R = _pop();
     const auto L = _pop();
     stack.push(L - R);
+    if (verbose)
+        std::cerr << std::dec << now_str() << std::setw(FUNC_W) << __func__ << ' ' << L << " - " << R << " = "
+                  << stack.top() << std::endl;
 }
 
 void StackMachine::mul() {
@@ -146,6 +172,9 @@ void StackMachine::mul() {
     const auto R = _pop();
     const auto L = _pop();
     stack.push(L * R);
+    if (verbose)
+        std::cerr << std::dec << now_str() << std::setw(FUNC_W) << __func__ << ' ' << L << " * " << R << " = "
+                  << stack.top() << std::endl;
 }
 
 void StackMachine::muls() {
@@ -153,6 +182,9 @@ void StackMachine::muls() {
     const auto R = static_cast<StackMachine::signed_stack_t>(_pop());
     const auto L = static_cast<StackMachine::signed_stack_t>(_pop());
     stack.push(static_cast<StackMachine::stack_t>(L * R));
+    if (verbose)
+        std::cerr << std::dec << now_str() << std::setw(FUNC_W) << __func__ << ' ' << L << " * " << R << " = "
+                  << static_cast<StackMachine::signed_stack_t>(stack.top()) << std::endl;
 }
 
 void StackMachine::div() {
@@ -160,6 +192,9 @@ void StackMachine::div() {
     const auto R = _pop();
     const auto L = _pop();
     stack.push(L / R);
+    if (verbose)
+        std::cerr << std::dec << now_str() << std::setw(FUNC_W) << __func__ << ' ' << L << " / " << R << " = "
+                  << stack.top() << std::endl;
 }
 
 void StackMachine::divs() {
@@ -167,6 +202,9 @@ void StackMachine::divs() {
     const auto R = static_cast<StackMachine::signed_stack_t>(_pop());
     const auto L = static_cast<StackMachine::signed_stack_t>(_pop());
     stack.push(static_cast<StackMachine::stack_t>(L / R));
+    if (verbose)
+        std::cerr << std::dec << now_str() << std::setw(FUNC_W) << __func__ << ' ' << L << " / " << R << " = "
+                  << static_cast<StackMachine::signed_stack_t>(stack.top()) << std::endl;
 }
 
 void StackMachine::mod() {
@@ -174,6 +212,9 @@ void StackMachine::mod() {
     const auto R = _pop();
     const auto L = _pop();
     stack.push(L % R);
+    if (verbose)
+        std::cerr << std::dec << now_str() << std::setw(FUNC_W) << __func__ << ' ' << L << " % " << R << " = "
+                  << stack.top() << std::endl;
 }
 
 void StackMachine::mods() {
@@ -181,6 +222,9 @@ void StackMachine::mods() {
     const auto R = static_cast<StackMachine::signed_stack_t>(_pop());
     const auto L = static_cast<StackMachine::signed_stack_t>(_pop());
     stack.push(static_cast<StackMachine::stack_t>(L % R));
+    if (verbose)
+        std::cerr << std::dec << now_str() << std::setw(FUNC_W) << __func__ << ' ' << L << " % " << R << " = "
+                  << static_cast<StackMachine::signed_stack_t>(stack.top()) << std::endl;
 }
 
 void StackMachine::pow() {
@@ -188,6 +232,9 @@ void StackMachine::pow() {
     const auto R = _pop();
     const auto L = _pop();
     stack.push(ipow(L, R));
+    if (verbose)
+        std::cerr << std::dec << now_str() << std::setw(FUNC_W) << __func__ << ' ' << L << " ** " << R << " = "
+                  << stack.top() << std::endl;
 }
 
 void StackMachine::pows() {
@@ -195,9 +242,12 @@ void StackMachine::pows() {
     const auto R = static_cast<StackMachine::signed_stack_t>(_pop());
     const auto L = static_cast<StackMachine::signed_stack_t>(_pop());
 
-    if (L < 0) { stack.push(0); }
-
-    stack.push(static_cast<StackMachine::stack_t>(ipow(L, R)));
+    if (L < 0) stack.push(0);
+    else
+        stack.push(static_cast<StackMachine::stack_t>(ipow(L, R)));
+    if (verbose)
+        std::cerr << std::dec << now_str() << std::setw(FUNC_W) << __func__ << ' ' << L << " ** " << R << " = "
+                  << static_cast<StackMachine::signed_stack_t>(stack.top()) << std::endl;
 }
 
 
@@ -207,6 +257,9 @@ void StackMachine::addf() {
     const data_f L   = _pop();
     const data_f RES = L.f + R.f;
     stack.push(RES.st);
+    if (verbose)
+        std::cerr << std::dec << now_str() << std::setw(FUNC_W) << __func__ << ' ' << L.f << " + " << R.f << " = "
+                  << RES.f << std::endl;
 }
 
 void StackMachine::subf() {
@@ -215,6 +268,9 @@ void StackMachine::subf() {
     const data_f L   = _pop();
     const data_f RES = L.f - R.f;
     stack.push(RES.st);
+    if (verbose)
+        std::cerr << std::dec << now_str() << std::setw(FUNC_W) << __func__ << ' ' << L.f << " - " << R.f << " = "
+                  << RES.f << std::endl;
 }
 
 void StackMachine::mulf() {
@@ -223,6 +279,9 @@ void StackMachine::mulf() {
     const data_f L   = _pop();
     const data_f RES = L.f * R.f;
     stack.push(RES.st);
+    if (verbose)
+        std::cerr << std::dec << now_str() << std::setw(FUNC_W) << __func__ << ' ' << L.f << " * " << R.f << " = "
+                  << RES.f << std::endl;
 }
 
 void StackMachine::divf() {
@@ -231,6 +290,9 @@ void StackMachine::divf() {
     const data_f L   = _pop();
     const data_f RES = L.f / R.f;
     stack.push(RES.st);
+    if (verbose)
+        std::cerr << std::dec << now_str() << std::setw(FUNC_W) << __func__ << ' ' << L.f << " / " << R.f << " = "
+                  << RES.f << std::endl;
 }
 
 void StackMachine::powf() {
@@ -239,6 +301,9 @@ void StackMachine::powf() {
     const data_f L   = _pop();
     const data_f RES = std::pow(L.f, R.f);
     stack.push(RES.st);
+    if (verbose)
+        std::cerr << std::dec << now_str() << std::setw(FUNC_W) << __func__ << ' ' << L.f << " ** " << R.f << " = "
+                  << RES.f << std::endl;
 }
 
 void StackMachine::addd() {
@@ -247,6 +312,9 @@ void StackMachine::addd() {
     const data_d L   = _pop();
     const data_d RES = L.d + R.d;
     stack.push(RES.st);
+    if (verbose)
+        std::cerr << std::dec << now_str() << std::setw(FUNC_W) << __func__ << ' ' << L.d << " + " << R.d << " = "
+                  << RES.d << std::endl;
 }
 
 void StackMachine::subd() {
@@ -255,6 +323,9 @@ void StackMachine::subd() {
     const data_d L   = _pop();
     const data_d RES = L.d - R.d;
     stack.push(RES.st);
+    if (verbose)
+        std::cerr << std::dec << now_str() << std::setw(FUNC_W) << __func__ << ' ' << L.d << " - " << R.d << " = "
+                  << RES.d << std::endl;
 }
 
 void StackMachine::muld() {
@@ -263,6 +334,9 @@ void StackMachine::muld() {
     const data_d L   = _pop();
     const data_d RES = L.d * R.d;
     stack.push(RES.st);
+    if (verbose)
+        std::cerr << std::dec << now_str() << std::setw(FUNC_W) << __func__ << ' ' << L.d << " * " << R.d << " = "
+                  << RES.d << std::endl;
 }
 
 void StackMachine::divd() {
@@ -271,6 +345,9 @@ void StackMachine::divd() {
     const data_d L   = _pop();
     const data_d RES = L.d / R.d;
     stack.push(RES.st);
+    if (verbose)
+        std::cerr << std::dec << now_str() << std::setw(FUNC_W) << __func__ << ' ' << L.d << " / " << R.d << " = "
+                  << RES.d << std::endl;
 }
 
 void StackMachine::powd() {
@@ -279,6 +356,9 @@ void StackMachine::powd() {
     const data_d L   = _pop();
     const data_d RES = std::pow(L.d, R.d);
     stack.push(RES.st);
+    if (verbose)
+        std::cerr << std::dec << now_str() << std::setw(FUNC_W) << __func__ << ' ' << L.d << " ** " << R.d << " = "
+                  << RES.d << std::endl;
 }
 
 /**********************************************************************************************************************/
@@ -291,6 +371,9 @@ void StackMachine::linv() {
     check_conv();
     const auto SRC = _pop() != 0;
     stack.push(SRC ? 0 : 1);
+    if (verbose)
+        std::cerr << std::dec << now_str() << std::setw(FUNC_W) << __func__ << ' ' << (SRC ? '1' : '0') << " -> "
+                  << stack.top() << std::endl;
 }
 
 void StackMachine::land() {
@@ -298,6 +381,9 @@ void StackMachine::land() {
     const auto R = _pop() != 0;
     const auto L = _pop() != 0;
     stack.push(R && L ? 1 : 0);
+    if (verbose)
+        std::cerr << std::dec << now_str() << std::setw(FUNC_W) << __func__ << ' ' << (L ? '1' : '0') << " && "
+                  << (R ? '1' : '0') << " -> " << stack.top() << std::endl;
 }
 
 void StackMachine::lor() {
@@ -305,6 +391,9 @@ void StackMachine::lor() {
     const auto R = _pop() != 0;
     const auto L = _pop() != 0;
     stack.push(R || L ? 1 : 0);
+    if (verbose)
+        std::cerr << std::dec << now_str() << std::setw(FUNC_W) << __func__ << ' ' << (L ? '1' : '0') << " || "
+                  << (R ? '1' : '0') << " -> " << stack.top() << std::endl;
 }
 
 void StackMachine::lxor() {
@@ -312,6 +401,9 @@ void StackMachine::lxor() {
     const auto R = _pop() != 0;
     const auto L = _pop() != 0;
     stack.push(R != L ? 1 : 0);
+    if (verbose)
+        std::cerr << std::dec << now_str() << std::setw(FUNC_W) << __func__ << ' ' << (L ? '1' : '0') << " xor "
+                  << (R ? '1' : '0') << " -> " << stack.top() << std::endl;
 }
 
 /**********************************************************************************************************************/
@@ -324,6 +416,9 @@ void StackMachine::binv() {
     check_conv();
     const auto SRC = _pop();
     stack.push(~SRC);
+    if (verbose)
+        std::cerr << std::hex << now_str() << std::setw(FUNC_W) << __func__ << ' ' << SRC << " -> " << stack.top()
+                  << std::endl;
 }
 
 void StackMachine::band() {
@@ -331,6 +426,9 @@ void StackMachine::band() {
     const auto R = _pop();
     const auto L = _pop();
     stack.push(L & R);
+    if (verbose)
+        std::cerr << std::hex << now_str() << std::setw(FUNC_W) << __func__ << ' ' << L << " & " << R << " -> "
+                  << stack.top() << std::endl;
 }
 
 void StackMachine::bor() {
@@ -338,6 +436,9 @@ void StackMachine::bor() {
     const auto R = _pop();
     const auto L = _pop();
     stack.push(L | R);
+    if (verbose)
+        std::cerr << std::hex << now_str() << std::setw(FUNC_W) << __func__ << ' ' << L << " | " << R << " -> "
+                  << stack.top() << std::endl;
 }
 
 void StackMachine::bxor() {
@@ -345,6 +446,9 @@ void StackMachine::bxor() {
     const auto R = _pop();
     const auto L = _pop();
     stack.push(L ^ R);
+    if (verbose)
+        std::cerr << std::hex << now_str() << std::setw(FUNC_W) << __func__ << ' ' << L << " ^ " << R << " -> "
+                  << stack.top() << std::endl;
 }
 
 /**********************************************************************************************************************/
@@ -358,6 +462,7 @@ void StackMachine::itof() {
     const auto   SRC = _pop();
     const data_f DST = static_cast<float>(SRC);
     stack.push(DST.st);
+    if (verbose) std::cerr << std::hex << now_str() << std::setw(FUNC_W) << __func__ << std::endl;
 }
 
 void StackMachine::itod() {
@@ -365,6 +470,7 @@ void StackMachine::itod() {
     const auto   SRC = _pop();
     const data_d DST = static_cast<double>(SRC);
     stack.push(DST.st);
+    if (verbose) std::cerr << std::hex << now_str() << std::setw(FUNC_W) << __func__ << std::endl;
 }
 
 void StackMachine::ftoi() {
@@ -372,6 +478,7 @@ void StackMachine::ftoi() {
     const data_f SRC = _pop();
     const auto   DST = static_cast<StackMachine::stack_t>(SRC.f);
     stack.push(DST);
+    if (verbose) std::cerr << std::hex << now_str() << std::setw(FUNC_W) << __func__ << std::endl;
 }
 
 void StackMachine::dtoi() {
@@ -379,6 +486,7 @@ void StackMachine::dtoi() {
     const data_d SRC = _pop();
     const auto   DST = static_cast<StackMachine::stack_t>(SRC.d);
     stack.push(DST);
+    if (verbose) std::cerr << std::hex << now_str() << std::setw(FUNC_W) << __func__ << std::endl;
 }
 
 void StackMachine::ftod() {
@@ -386,6 +494,7 @@ void StackMachine::ftod() {
     const data_f SRC = _pop();
     const data_d DST = static_cast<double>(SRC.f);
     stack.push(DST.st);
+    if (verbose) std::cerr << std::hex << now_str() << std::setw(FUNC_W) << __func__ << std::endl;
 }
 
 void StackMachine::dtof() {
@@ -393,6 +502,7 @@ void StackMachine::dtof() {
     const data_d SRC = _pop();
     const data_f DST = static_cast<float>(SRC.d);
     stack.push(DST.st);
+    if (verbose) std::cerr << std::hex << now_str() << std::setw(FUNC_W) << __func__ << std::endl;
 }
 
 /******************************************************************************************************************/
@@ -405,6 +515,9 @@ void StackMachine::eq() {
     const auto R = _pop();
     const auto L = _pop();
     stack.push(L == R ? 1 : 0);  // false positive: condition is always true
+    if (verbose)
+        std::cerr << std::hex << now_str() << std::setw(FUNC_W) << __func__ << ' ' << L << " == " << R << " -> "
+                  << stack.top() << std::endl;
 }
 
 void StackMachine::ne() {
@@ -412,6 +525,9 @@ void StackMachine::ne() {
     const auto R = _pop();
     const auto L = _pop();
     stack.push(L != R ? 1 : 0);  // false positive: condition is always false
+    if (verbose)
+        std::cerr << std::hex << now_str() << std::setw(FUNC_W) << __func__ << ' ' << L << " != " << R << " -> "
+                  << stack.top() << std::endl;
 }
 
 void StackMachine::lt() {
@@ -419,6 +535,9 @@ void StackMachine::lt() {
     const auto R = _pop();
     const auto L = _pop();
     stack.push(L < R ? 1 : 0);
+    if (verbose)
+        std::cerr << std::hex << now_str() << std::setw(FUNC_W) << __func__ << ' ' << L << " < " << R << " -> "
+                  << stack.top() << std::endl;
 }
 
 void StackMachine::gt() {
@@ -426,6 +545,9 @@ void StackMachine::gt() {
     const auto R = _pop();
     const auto L = _pop();
     stack.push(L > R ? 1 : 0);
+    if (verbose)
+        std::cerr << std::hex << now_str() << std::setw(FUNC_W) << __func__ << ' ' << L << " > " << R << " -> "
+                  << stack.top() << std::endl;
 }
 
 void StackMachine::le() {
@@ -433,6 +555,9 @@ void StackMachine::le() {
     const auto R = _pop();
     const auto L = _pop();
     stack.push(L <= R ? 1 : 0);
+    if (verbose)
+        std::cerr << std::hex << now_str() << std::setw(FUNC_W) << __func__ << ' ' << L << " <= " << R << " -> "
+                  << stack.top() << std::endl;
 }
 
 void StackMachine::ge() {
@@ -440,6 +565,9 @@ void StackMachine::ge() {
     const auto R = _pop();
     const auto L = _pop();
     stack.push(L >= R ? 1 : 0);
+    if (verbose)
+        std::cerr << std::hex << now_str() << std::setw(FUNC_W) << __func__ << ' ' << L << " >= " << R << " -> "
+                  << stack.top() << std::endl;
 }
 
 void StackMachine::lts() {
@@ -447,6 +575,9 @@ void StackMachine::lts() {
     const auto R = static_cast<StackMachine::signed_stack_t>(_pop());
     const auto L = static_cast<StackMachine::signed_stack_t>(_pop());
     stack.push(L < R ? 1 : 0);
+    if (verbose)
+        std::cerr << std::hex << now_str() << std::setw(FUNC_W) << __func__ << ' ' << L << " < " << R << " -> "
+                  << stack.top() << std::endl;
 }
 
 void StackMachine::gts() {
@@ -454,6 +585,9 @@ void StackMachine::gts() {
     const auto R = static_cast<StackMachine::signed_stack_t>(_pop());
     const auto L = static_cast<StackMachine::signed_stack_t>(_pop());
     stack.push(L > R ? 1 : 0);
+    if (verbose)
+        std::cerr << std::hex << now_str() << std::setw(FUNC_W) << __func__ << ' ' << L << " > " << R << " -> "
+                  << stack.top() << std::endl;
 }
 
 void StackMachine::les() {
@@ -461,6 +595,9 @@ void StackMachine::les() {
     const auto R = static_cast<StackMachine::signed_stack_t>(_pop());
     const auto L = static_cast<StackMachine::signed_stack_t>(_pop());
     stack.push(L <= R ? 1 : 0);
+    if (verbose)
+        std::cerr << std::hex << now_str() << std::setw(FUNC_W) << __func__ << ' ' << L << " <= " << R << " -> "
+                  << stack.top() << std::endl;
 }
 
 void StackMachine::ges() {
@@ -468,6 +605,9 @@ void StackMachine::ges() {
     const auto R = static_cast<StackMachine::signed_stack_t>(_pop());
     const auto L = static_cast<StackMachine::signed_stack_t>(_pop());
     stack.push(L >= R ? 1 : 0);
+    if (verbose)
+        std::cerr << std::hex << now_str() << std::setw(FUNC_W) << __func__ << ' ' << L << " >= " << R << " -> "
+                  << stack.top() << std::endl;
 }
 
 void StackMachine::ltd() {
@@ -475,6 +615,9 @@ void StackMachine::ltd() {
     const data_d R = _pop();
     const data_d L = _pop();
     stack.push(L.d < R.d ? 1 : 0);
+    if (verbose)
+        std::cerr << std::hex << now_str() << std::setw(FUNC_W) << __func__ << ' ' << L.d << " < " << R.d << " -> "
+                  << stack.top() << std::endl;
 }
 
 void StackMachine::gtd() {
@@ -482,6 +625,9 @@ void StackMachine::gtd() {
     const data_d R = _pop();
     const data_d L = _pop();
     stack.push(L.d > R.d ? 1 : 0);
+    if (verbose)
+        std::cerr << std::hex << now_str() << std::setw(FUNC_W) << __func__ << ' ' << L.d << " > " << R.d << " -> "
+                  << stack.top() << std::endl;
 }
 
 void StackMachine::led() {
@@ -489,6 +635,9 @@ void StackMachine::led() {
     const data_d R = _pop();
     const data_d L = _pop();
     stack.push(L.d <= R.d ? 1 : 0);
+    if (verbose)
+        std::cerr << std::hex << now_str() << std::setw(FUNC_W) << __func__ << ' ' << L.d << " <= " << R.d << " -> "
+                  << stack.top() << std::endl;
 }
 
 void StackMachine::ged() {
@@ -496,6 +645,9 @@ void StackMachine::ged() {
     const data_d R = _pop();
     const data_d L = _pop();
     stack.push(L.d >= R.d ? 1 : 0);
+    if (verbose)
+        std::cerr << std::hex << now_str() << std::setw(FUNC_W) << __func__ << ' ' << L.d << " >= " << R.d << " -> "
+                  << stack.top() << std::endl;
 }
 
 /******************************************************************************************************************/
@@ -508,6 +660,9 @@ void StackMachine::abs() {
     const data_d SRC = _pop();
     const data_d DST = std::abs(SRC.d);
     stack.push(DST.st);
+    if (verbose)
+        std::cerr << std::hex << now_str() << std::setw(FUNC_W) << __func__ << ' ' << SRC.d << " -> " << DST.d
+                  << std::endl;
 }
 
 void StackMachine::sqrt() {
@@ -515,6 +670,9 @@ void StackMachine::sqrt() {
     const data_d SRC = _pop();
     const data_d DST = std::sqrt(SRC.d);
     stack.push(DST.st);
+    if (verbose)
+        std::cerr << std::hex << now_str() << std::setw(FUNC_W) << __func__ << ' ' << SRC.d << " -> " << DST.d
+                  << std::endl;
 }
 
 void StackMachine::cbrt() {
@@ -522,6 +680,9 @@ void StackMachine::cbrt() {
     const data_d SRC = _pop();
     const data_d DST = std::cbrt(SRC.d);
     stack.push(DST.st);
+    if (verbose)
+        std::cerr << std::hex << now_str() << std::setw(FUNC_W) << __func__ << ' ' << SRC.d << " -> " << DST.d
+                  << std::endl;
 }
 
 void StackMachine::ln() {
@@ -529,6 +690,9 @@ void StackMachine::ln() {
     const data_d SRC = _pop();
     const data_d DST = std::log(SRC.d);
     stack.push(DST.st);
+    if (verbose)
+        std::cerr << std::hex << now_str() << std::setw(FUNC_W) << __func__ << ' ' << SRC.d << " -> " << DST.d
+                  << std::endl;
 }
 
 void StackMachine::log() {
@@ -536,6 +700,9 @@ void StackMachine::log() {
     const data_d SRC = _pop();
     const data_d DST = std::log10(SRC.d);
     stack.push(DST.st);
+    if (verbose)
+        std::cerr << std::hex << now_str() << std::setw(FUNC_W) << __func__ << ' ' << SRC.d << " -> " << DST.d
+                  << std::endl;
 }
 
 void StackMachine::lg() {
@@ -543,6 +710,9 @@ void StackMachine::lg() {
     const data_d SRC = _pop();
     const data_d DST = std::log2(SRC.d);
     stack.push(DST.st);
+    if (verbose)
+        std::cerr << std::hex << now_str() << std::setw(FUNC_W) << __func__ << ' ' << SRC.d << " -> " << DST.d
+                  << std::endl;
 }
 
 void StackMachine::sin() {
@@ -550,6 +720,9 @@ void StackMachine::sin() {
     const data_d SRC = _pop();
     const data_d DST = std::sin(SRC.d);
     stack.push(DST.st);
+    if (verbose)
+        std::cerr << std::hex << now_str() << std::setw(FUNC_W) << __func__ << ' ' << SRC.d << " -> " << DST.d
+                  << std::endl;
 }
 
 void StackMachine::cos() {
@@ -557,6 +730,9 @@ void StackMachine::cos() {
     const data_d SRC = _pop();
     const data_d DST = std::cos(SRC.d);
     stack.push(DST.st);
+    if (verbose)
+        std::cerr << std::hex << now_str() << std::setw(FUNC_W) << __func__ << ' ' << SRC.d << " -> " << DST.d
+                  << std::endl;
 }
 
 void StackMachine::tan() {
@@ -564,6 +740,9 @@ void StackMachine::tan() {
     const data_d SRC = _pop();
     const data_d DST = std::tan(SRC.d);
     stack.push(DST.st);
+    if (verbose)
+        std::cerr << std::hex << now_str() << std::setw(FUNC_W) << __func__ << ' ' << SRC.d << " -> " << DST.d
+                  << std::endl;
 }
 
 void StackMachine::asin() {
@@ -571,6 +750,9 @@ void StackMachine::asin() {
     const data_d SRC = _pop();
     const data_d DST = std::asin(SRC.d);
     stack.push(DST.st);
+    if (verbose)
+        std::cerr << std::hex << now_str() << std::setw(FUNC_W) << __func__ << ' ' << SRC.d << " -> " << DST.d
+                  << std::endl;
 }
 
 void StackMachine::acos() {
@@ -578,6 +760,9 @@ void StackMachine::acos() {
     const data_d SRC = _pop();
     const data_d DST = std::acos(SRC.d);
     stack.push(DST.st);
+    if (verbose)
+        std::cerr << std::hex << now_str() << std::setw(FUNC_W) << __func__ << ' ' << SRC.d << " -> " << DST.d
+                  << std::endl;
 }
 
 void StackMachine::atan() {
@@ -585,6 +770,9 @@ void StackMachine::atan() {
     const data_d SRC = _pop();
     const data_d DST = std::atan(SRC.d);
     stack.push(DST.st);
+    if (verbose)
+        std::cerr << std::hex << now_str() << std::setw(FUNC_W) << __func__ << ' ' << SRC.d << " -> " << DST.d
+                  << std::endl;
 }
 
 void StackMachine::atanxy() {
@@ -593,6 +781,9 @@ void StackMachine::atanxy() {
     const data_d L   = _pop();
     const data_d DST = std::atan2(R.d, L.d);
     stack.push(DST.st);
+    if (verbose)
+        std::cerr << std::hex << now_str() << std::setw(FUNC_W) << __func__ << " x:" << L.d << " y:" << R.d << " -> "
+                  << DST.d << std::endl;
 }
 
 

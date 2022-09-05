@@ -16,6 +16,7 @@ public:
 private:
     static constexpr std::size_t DEFAULT_MAX_STACK = 4096 / sizeof(stack_t);
 
+    bool                verbose;
     const std::size_t   MAX_STACK;
     std::stack<stack_t> stack;
 
@@ -26,7 +27,7 @@ public:
      * @exception std::invalid_argument max stack size to small
      * @exception std::bad_alloc failed to allocate memory for stack
      */
-    explicit StackMachine(std::size_t max_stack = DEFAULT_MAX_STACK);
+    explicit StackMachine(bool verbose, std::size_t max_stack = DEFAULT_MAX_STACK);
 
     /******************************************************************************************************************/
     /******************************************************************************************************************/

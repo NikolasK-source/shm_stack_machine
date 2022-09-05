@@ -29,9 +29,11 @@ __PROGRAM
     PUSH a
     PUSH b
     PUSH STIME
-    MUL
+    MULD
     SIN
-    MUL
-    ADD
+    MULD
+    ADDD
+    DUP
     DTOF
     POP target
+    POP STDOUTD

@@ -608,6 +608,15 @@ public:
     }
 };
 
+class TAN : public OnStack {
+public:
+    explicit TAN(StackMachine &machine) : OnStack(machine) {}
+    bool exec() override {
+        machine.tan();
+        return true;
+    }
+};
+
 class ASIN : public OnStack {
 public:
     explicit ASIN(StackMachine &machine) : OnStack(machine) {}
