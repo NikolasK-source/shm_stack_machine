@@ -1,0 +1,25 @@
+# Test 6: pop null
+
+__MEM
+
+__SETTINGS
+    CYCLE_MS 100
+    CYCLES 1
+
+__VAR
+    const u one
+    const u two
+    const u three
+
+__INIT
+    one 1
+    two 2
+    three 3
+
+__PROGRAM
+    PUSH one
+    PUSH two
+    PUSH three
+    POP STDOUT
+    POP NULL
+    POP STDOUT

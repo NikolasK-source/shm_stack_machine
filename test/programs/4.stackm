@@ -1,0 +1,17 @@
+# Test 1: write 1 to stdout (run 4x)
+
+__MEM
+
+__SETTINGS
+    CYCLE_MS 100
+    CYCLES 4
+
+__VAR
+    const u one
+
+__INIT
+    one 1
+
+__PROGRAM
+    PUSH one
+    POP STDOUT

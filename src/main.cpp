@@ -6,18 +6,39 @@
 #include "Machine.hpp"
 
 #include <iostream>
-#include <unistd.h>
+#include <sysexits.h>
+
+#include "cxxopts.hpp"
 
 
-int main() {
+int main(int argc, char **argv) {
+    cxxopts::Options options(PROJECT_NAME, "Simple stack machine interpreter that can work with shared memory");
+
+    options.add_options()("h,help", "Show usage information", cxxopts::value<bool>()->default_value("false"));
+    options.add_options()(
+            "v,verbose", "Print what the stack machine executes", cxxopts::value<bool>()->default_value("false"));
+
+    options.add_options()("file", "The file to execute", cxxopts::value<std::string>());
+
+    options.parse_positional({"file"});
+    auto opts = options.parse(argc, argv);
+
+    if (!opts.count("file")) {
+        std::cerr << "File is mandatory!" << std::endl;
+        return EX_USAGE;
+    }
+
     Machine machine(32);
-    machine.load_file("../examples/toggle_ff.statem");
+    machine.load_file(opts["file"].as<std::string>());
 
     machine.init();
 
-    while (true) {
+    // TODO cycle time
+
+    bool inf = machine.get_cycles() == 0;
+    for (std::size_t i = machine.get_cycles(); i || inf; --i) {
         machine.run();
-        sleep(1);
     }
+
     return 0;
 }

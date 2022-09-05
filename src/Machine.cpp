@@ -5,6 +5,7 @@
 
 #include "Machine.hpp"
 
+#include "special_instructions.hpp"
 #include "split_string.hpp"
 
 #include <algorithm>
@@ -15,8 +16,22 @@
 
 static const std::unordered_set<std::string> const_data_types = {"u", "i", "f"};
 
-static const std::unordered_set<std::string> RESERVED = {
-        "STIME", "CTIME", "PID", "PPID", "UID", "EUID", "RAND", "RAND", "RANDF", "RANDD"};
+static const std::unordered_set<std::string> RESERVED = {"STIME",
+                                                         "MTIME",
+                                                         "CTIME",
+                                                         "TTIME",
+                                                         "PID",
+                                                         "PPID",
+                                                         "UID",
+                                                         "EUID",
+                                                         "RAND",
+                                                         "RAND",
+                                                         "RANDF",
+                                                         "RANDD",
+                                                         "STDOUT",
+                                                         "STDOUTS",
+                                                         "STDOUTF",
+                                                         "STDOUTD"};
 
 static unsigned long long parse_unsigned(const std::string &str) {
     unsigned long long result;
@@ -243,6 +258,15 @@ void Machine::parse_settings(const std::vector<std::string> &data) {
             }
 
             applied_settings.insert(split_instr[0]);
+        } else if (split_instr[0] == "CYCLES") {
+            const auto &value = split_instr[1];
+            try {
+                this->cycles = parse_unsigned(value);
+            } catch (const std::exception &e) {
+                std::ostringstream sstr;
+                sstr << "failed to parse '" << value << "' as number of cycles: " << e.what();
+                throw std::runtime_error(sstr.str());
+            }
         } else {
             std::ostringstream sstr;
             sstr << "invalid setting: " << instr;
@@ -705,12 +729,33 @@ void Machine::parse_program(const std::vector<std::string> &data) {
                 } else if (var_map.count(target)) {
                     instructions.emplace_back(std::make_unique<instr::PUSH_var>(stack_machine, var_map.at(target)));
                 } else {
-                    // special vars
-                    // TODO
-
-                    std::ostringstream sstr;
-                    sstr << "failed to pares instruction '" << instr << "': unknown variable '" << target << "'";
-                    throw std::runtime_error(sstr.str());
+                    if (target == "STIME") {
+                        instructions.emplace_back(std::make_unique<instr_special::PUSH_stime>(stack_machine));
+                    } else if (target == "MTIME") {
+                        instructions.emplace_back(std::make_unique<instr_special::PUSH_mtime>(stack_machine));
+                    } else if (target == "CTIME") {
+                        instructions.emplace_back(std::make_unique<instr_special::PUSH_ctime>(stack_machine));
+                    } else if (target == "TTIME") {
+                        instructions.emplace_back(std::make_unique<instr_special::PUSH_ttime>(stack_machine));
+                    } else if (target == "PID") {
+                        instructions.emplace_back(std::make_unique<instr_special::PUSH_pid>(stack_machine));
+                    } else if (target == "PPID") {
+                        instructions.emplace_back(std::make_unique<instr_special::PUSH_ppid>(stack_machine));
+                    } else if (target == "UID") {
+                        instructions.emplace_back(std::make_unique<instr_special::PUSH_uid>(stack_machine));
+                    } else if (target == "EUID") {
+                        instructions.emplace_back(std::make_unique<instr_special::PUSH_euid>(stack_machine));
+                    } else if (target == "RAND") {
+                        instructions.emplace_back(std::make_unique<instr_special::PUSH_rand>(stack_machine));
+                    } else if (target == "RANDF") {
+                        instructions.emplace_back(std::make_unique<instr_special::PUSH_randf>(stack_machine));
+                    } else if (target == "RANDD") {
+                        instructions.emplace_back(std::make_unique<instr_special::PUSH_randd>(stack_machine));
+                    } else {
+                        std::ostringstream sstr;
+                        sstr << "failed to pares instruction '" << instr << "': unknown variable '" << target << "'";
+                        throw std::runtime_error(sstr.str());
+                    }
                 }
 
             } else if (split_instr[0] == "POP" || split_instr[0] == "S") {
@@ -719,12 +764,21 @@ void Machine::parse_program(const std::vector<std::string> &data) {
                 if (var_map.count(target)) {
                     instructions.emplace_back(std::make_unique<instr::POP_var>(stack_machine, var_map.at(target)));
                 } else {
-                    // special vars
-                    // TODO
-
-                    std::ostringstream sstr;
-                    sstr << "failed to pares instruction '" << instr << "': unknown variable '" << target << "'";
-                    throw std::runtime_error(sstr.str());
+                    if (target == "STDOUT") {
+                        instructions.emplace_back(std::make_unique<instr_special::POP_stdout>(stack_machine));
+                    } else if (target == "STDOUTS") {
+                        instructions.emplace_back(std::make_unique<instr_special::POP_stdouts>(stack_machine));
+                    } else if (target == "STDOUTF") {
+                        instructions.emplace_back(std::make_unique<instr_special::POP_stdoutf>(stack_machine));
+                    } else if (target == "STDOUTD") {
+                        instructions.emplace_back(std::make_unique<instr_special::POP_stdoutd>(stack_machine));
+                    } else if (target == "NULL") {
+                        instructions.emplace_back(std::make_unique<instr_special::POP_NULL>(stack_machine));
+                    } else {
+                        std::ostringstream sstr;
+                        sstr << "failed to pares instruction '" << instr << "': unknown variable '" << target << "'";
+                        throw std::runtime_error(sstr.str());
+                    }
                 }
             } else if (split_instr[0] == "J") {
                 instructions.emplace_back(std::make_unique<instr::J>(stack_machine));

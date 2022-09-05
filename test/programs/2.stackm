@@ -1,0 +1,20 @@
+# Test 2: write floating point to stdout
+
+__MEM
+
+__SETTINGS
+    CYCLE_MS 100
+    CYCLES 1
+
+__VAR
+    const f cnst
+
+__INIT
+    cnst 3.141
+
+__PROGRAM
+    PUSH cnst
+    DUP
+    POP STDOUTD
+    DTOF
+    POP STDOUTF

@@ -1,0 +1,19 @@
+# Test 5: signed values
+
+__MEM
+
+__SETTINGS
+    CYCLE_MS 100
+    CYCLES 1
+
+__VAR
+    const i n_one
+
+__INIT
+    n_one -1
+
+__PROGRAM
+    PUSH n_one
+    DUP
+    POP STDOUT
+    POP STDOUTS

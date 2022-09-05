@@ -1,0 +1,55 @@
+# Test 7: arithmetic
+
+__MEM
+
+__SETTINGS
+    CYCLE_MS 100
+    CYCLES 1
+
+__VAR
+    const u 1
+    const u 2
+    const u 3
+    const u 4
+    const u 5
+    const u 6
+    const u 7
+    const u 8
+    const u 9
+    const u 10
+
+__INIT
+    1 1
+    2 2
+    3 3
+    4 4
+    5 5
+    6 6
+    7 7
+    8 8
+    9 9
+    10 10
+
+# TODO test all arithmetic instruction
+__PROGRAM
+    PUSH 6
+    PUSH 7
+    ADD # 6 + 7 = 13
+    POP STDOUT
+
+    PUSH 10
+    DUP
+    PUSH 4
+    MUL # 4 * 10 = 40
+    MUL # 10 * 40 = 400
+    DUP
+    POP STDOUT
+
+    PUSH 10
+    PUSH 2
+    SUB # 10 - 2 = 8
+    DUP
+    POP STDOUT
+
+    DIV # 400 / 8 = 50
+    POP STDOUT

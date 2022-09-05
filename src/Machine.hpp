@@ -17,6 +17,7 @@
 class Machine {
 private:
     std::size_t                                              cycle_time_ms = 1000;
+    std::size_t                                              cycles        = 0;
     StackMachine                                             stack_machine;
     std::unordered_map<std::string, std::unique_ptr<Memory>> mem_map;
     std::unordered_map<std::string, var_t>                   var_map;
@@ -38,6 +39,7 @@ public:
     void run();
 
     inline std::size_t get_cycle_time_ms() const { return cycle_time_ms; }
+    inline std::size_t get_cycles() const { return cycles; }
 
 private:
     void parse_mem(const std::vector<std::string> &data);

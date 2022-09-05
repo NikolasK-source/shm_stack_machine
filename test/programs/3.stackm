@@ -1,0 +1,52 @@
+# Test 3: float instructions
+
+__MEM
+
+__SETTINGS
+    CYCLE_MS 100
+    CYCLES 1
+
+__VAR
+    const f cnst
+    const f cnstn
+
+__INIT
+    cnst 0.0256
+    cnstn -0.0256
+
+__PROGRAM
+    PUSH cnst
+    DUP
+    DUP
+    DUP
+    DUP
+    DUP
+    DUP
+    DUP
+    DUP
+    DUP
+    DUP
+    POP STDOUTD
+    PUSH cnst
+    ABS
+    POP STDOUTD
+    SQRT
+    POP STDOUTD
+    CBRT
+    POP STDOUTD
+    LN
+    POP STDOUTD
+    LOG
+    POP STDOUTD
+    LG
+    POP STDOUTD
+    SIN
+    POP STDOUTD
+    COS
+    POP STDOUTD
+    ASIN
+    POP STDOUTD
+    ACOS
+    POP STDOUTD
+    ATAN
+    POP STDOUTD
