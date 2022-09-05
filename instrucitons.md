@@ -2,19 +2,22 @@
 
 ## Interact with memory
 
-### PUSH
+### PUSH / L
 ```
 PUSH <target>
 ```
 Push target to stack.
 Target can be variable or unsigned integer constant.
 
-### POP
+### POP / S
 ```
 POP <target>
 ```
 Pop value from stack and store it in variable.
 Use ```NULL``` as target to discard the value.
+
+### DUP
+Duplicate top of stack.
 
 ## Arithmetic Instructions
 Arithmetic instructions operate on the stack.
@@ -223,7 +226,7 @@ Get the principal value of the arc cosine
 ### ATAN
 Get the principal value of the arc tangent
 
-### ATANXY
+### ATANXY / ATAN2
 Get the arc tangent by x and y value.  
 This instruction consumes two values from the stack and pushes its result to the stack.  
 X is left operand and Y is right operand (top of stack).

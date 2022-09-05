@@ -3,15 +3,21 @@
  * This program is free software. You can redistribute it and/or modify it under the terms of the MIT License.
  */
 
+#include "Machine.hpp"
+
 #include <iostream>
-#include <omp.h>
+#include <unistd.h>
+
 
 int main() {
-    // TODO implement
-    std::cout << PROJECT_NAME << ' ' << PROJECT_VERSION << ' ' << "Hello CMake!!!" << std::endl;
+    Machine machine(32);
+    machine.load_file("../examples/toggle_ff.statem");
 
-#ifdef _OPENMP
-#    pragma omp parallel default(none)
-    { printf("Hello from thread: %d\n", omp_get_thread_num()); }
-#endif
+    machine.init();
+
+    while (true) {
+        machine.run();
+        sleep(1);
+    }
+    return 0;
 }

@@ -3,8 +3,8 @@
 #
 
 __MEM
-    # use shared memory modbus_DO with name do; 1 byte cell size; work on image
-    shm modbus_DO do 1 1
+    # use shared memory modbus_DO with name do; 1 byte cell size
+    shm modbus_DO do 1
 
     # create 1 cell local memory (64bit per cell) with name lmem
     local lmem 1
@@ -15,11 +15,11 @@ __SETTINGS
 
 __VAR
 #   address    data_type    name
-    do@1.0     b            trigger          # toggle ff trigger signal is at bit 0 cell 1 of memory do
-    do@2.0     b            q                # toggle ff output is at bit 0 cell 1 of memory do
-    do@3.0     b            nq               # toggle ff inverted output is at bit 0 cell 1 of memory do
-    lmem@0.0   b            old_trigger      # previous trigger signal for edge detection
-    const      uint         two
+    do@1.0     le1          trigger          # toggle ff trigger signal is at bit 0 cell 1 of memory do
+    do@2.0     le1          q                # toggle ff output is at bit 0 cell 1 of memory do
+    do@3.0     le1          nq               # toggle ff inverted output is at bit 0 cell 1 of memory do
+    lmem@0     -            old_trigger      # previous trigger signal for edge detection
+    const      u            two
 
 __INIT
     old_trigger 0
@@ -28,22 +28,23 @@ __INIT
     two 2
 
 __PROGRAM
-    # check rising edge
-    PUSH two
+    # check trigger
     PUSH trigger
     DUP
+    JZ END # trigger not set --> nothing to do
+
+    # compare with old trigger
+    DUP
     PUSH old_trigger
-    NE
-    ADD
-    EQ
-    # tos is 1 if rising edge is detected
+    NE # tos is 1 if old trigger != trigger --> rising edge detected
+    JZ END
 
-    JNZ END
-
+    # write q and nq
     PUSH q
     DUP
-    INV
+    NOT
     POP q
     POP nq
 
     $END
+    POP old_trigger
