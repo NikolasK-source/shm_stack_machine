@@ -9,10 +9,10 @@ cmake_minimum_required(VERSION 3.13.4 FATAL_ERROR)
 # ======================================================================================================================
 
 # project
-project(shm-stack-compute LANGUAGES CXX VERSION 0.0.1)
+project(shm-stack-machine LANGUAGES CXX VERSION 0.0.1)
 
 # settings
-set(Target "shm-stack-compute")    # Executable name (without file extension!)
+set(Target "shm-stack-machine")    # Executable name (without file extension!)
 set(STANDARD 17)                  # C++ Standard
 set(ARCHITECTURE "native")        # CPU architecture to optimize for (only relevant if OPTIMIZE_FOR_ARCHITECTURE is ON)
 

@@ -42,7 +42,7 @@ public:
 };
 
 int main(int argc, char **argv) {
-    cxxopts::Options options(PROJECT_NAME, "Simple stack machine interpreter that can work with shared memory");
+    cxxopts::Options options(PROJECT_NAME, "Simple stack machine emulator that can work with shared memory");
 
     options.add_options()("s,stack-size", "Machine stack size (default: 32)", cxxopts::value<std::size_t>());
     options.add_options()("h,help", "Show usage information");
