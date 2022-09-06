@@ -1,0 +1,17 @@
+id: network.koesling.shm-stack-machine
+runtime: org.freedesktop.Platform
+runtime-version: '21.08'
+sdk: org.freedesktop.Sdk
+command: shm-stack-machine
+finish-args:
+  - --device=shm
+modules:
+  - name: shm-stack-machine
+    buildsystem: cmake-ninja
+    config-opts:
+      - -DCMAKE_BUILD_TYPE=Release
+      - -DCLANG_FORMAT=OFF
+      - -DCOMPILER_WARNINGS=OFF
+    sources:
+      - type: dir
+        path: .

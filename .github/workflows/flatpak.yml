@@ -1,0 +1,28 @@
+on:
+  [ push, pull_request ]
+name: Flatpak_test
+jobs:
+  flatpak:
+    name: "Flatpak"
+    runs-on: ubuntu-latest
+    container:
+      image: bilelmoussaoui/flatpak-github-actions:freedesktop-21.08
+      options: --privileged
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Git config
+      run: git config --global --add safe.directory /__w/shm_stack_machine/shm_stack_machine
+
+    - name: Init submodules
+      run: git submodule init
+      
+    - name: Update submodules
+      run: git submodule update
+
+    - uses: bilelmoussaoui/flatpak-github-actions/flatpak-builder@v4
+      name: "Build"
+      with:
+        bundle: shm-stack-machine.flatpak
+        manifest-path: network.koesling.shm-stack-machine.yml
+        cache-key: flatpak-builder-${{ github.sha }}
