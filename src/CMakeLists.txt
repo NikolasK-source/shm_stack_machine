@@ -13,6 +13,7 @@ target_sources(${Target} PRIVATE Machine.cpp)
 target_sources(${Target} PRIVATE instruction.cpp)
 target_sources(${Target} PRIVATE special_instructions.cpp)
 target_sources(${Target} PRIVATE time_str.cpp)
+target_sources(${Target} PRIVATE license.cpp)
 
 
 # ---------------------------------------- header files (*.jpp, *.h, ...) ----------------------------------------------
@@ -24,6 +25,7 @@ target_sources(${Target} PRIVATE Machine.hpp)
 target_sources(${Target} PRIVATE instruction.hpp)
 target_sources(${Target} PRIVATE special_instructions.hpp)
 target_sources(${Target} PRIVATE time_str.hpp)
+target_sources(${Target} PRIVATE license.hpp)
 
 
 # ---------------------------------------- subdirectories --------------------------------------------------------------

@@ -8,7 +8,9 @@
 #include "cxxitimer.hpp"
 #include "cxxopts.hpp"
 #include "cxxsignal.hpp"
+#include "license.hpp"
 #include "time_str.hpp"
+#include <filesystem>
 #include <iostream>
 #include <sysexits.h>
 #include <thread>
@@ -42,12 +44,20 @@ public:
 };
 
 int main(int argc, char **argv) {
-    cxxopts::Options options(PROJECT_NAME, "Simple stack machine emulator that can work with shared memory");
+    const std::string exe_name = std::filesystem::path(argv[0]).filename().string();
+    cxxopts::Options  options(PROJECT_NAME, "Simple stack machine emulator that can work with shared memory");
+
+    auto exit_usage = [&exe_name]() {
+        std::cerr << "Use '" << exe_name << " --help' for more information." << std::endl;
+        return EX_USAGE;
+    };
 
     options.add_options()("s,stack-size", "Machine stack size (default: 32)", cxxopts::value<std::size_t>());
     options.add_options()("h,help", "Show usage information");
     options.add_options()("d,debug", "Print what the stack machine executes");
     options.add_options()("v,verbose", "Print program status information");
+    options.add_options()("version", "print version information");
+    options.add_options()("license", "show licences");
 
     options.add_options()("file", "The file to execute", cxxopts::value<std::string>());
 
@@ -67,6 +77,19 @@ int main(int argc, char **argv) {
         std::cout << "  - cxxendian (https://github.com/NikolasK-source/cxxendian)" << std::endl;
         std::cout << "  - cxxsignal (https://github.com/NikolasK-source/cxxsignal)" << std::endl;
         std::cout << "  - cxxitimer (https://github.com/NikolasK-source/cxxitimer)" << std::endl;
+        return EX_OK;
+    }
+
+    // print usage
+    if (opts.count("version")) {
+        std::cout << PROJECT_NAME << ' ' << PROJECT_VERSION << " (compiled with " << COMPILER_INFO << " on "
+                  << SYSTEM_INFO << ')' << std::endl;
+        return EX_OK;
+    }
+
+    // print licenses
+    if (opts.count("license")) {
+        print_licenses(std::cout);
         return EX_OK;
     }
 
