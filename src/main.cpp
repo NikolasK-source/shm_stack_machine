@@ -66,6 +66,7 @@ int main(int argc, char **argv) {
         std::cout << "  - cxxshm (https://github.com/NikolasK-source/cxxshm)" << std::endl;
         std::cout << "  - cxxendian (https://github.com/NikolasK-source/cxxendian)" << std::endl;
         std::cout << "  - cxxsignal (https://github.com/NikolasK-source/cxxsignal)" << std::endl;
+        std::cout << "  - cxxitimer (https://github.com/NikolasK-source/cxxitimer)" << std::endl;
         return EX_OK;
     }
 
