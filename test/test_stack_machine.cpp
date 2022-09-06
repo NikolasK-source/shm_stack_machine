@@ -35,7 +35,8 @@ union data_d {
 static constexpr std::size_t STACK_SIZE = 8;
 
 int main() {
-    StackMachine machine(STACK_SIZE);
+    StackMachine          machine(false, STACK_SIZE);
+    StackMachine::stack_t p;
 
     machine.push(100);
     machine.push(200);
@@ -64,7 +65,9 @@ int main() {
     machine.push(1000);
     assert(machine.size() == 2);
     machine.mod();
-    assert(machine.pop() == 100);
+    p = machine.pop();
+    assert(p == 100);
+    static_cast<void>(p);
     assert(machine.size() == 0);
 
     assert(machine.size() == 0);
@@ -103,105 +106,150 @@ int main() {
     machine.push(d2.st);
     machine.powd();
     assert(machine.get() == d3.st);
+    static_cast<void>(d3);
 
     machine.push(1000000);
     machine.itod();
     machine.muld();
     machine.dtoi();
-    assert(machine.pop() == 14);
+    p = machine.pop();
+    assert(p == 14);
+    static_cast<void>(p);
     assert(machine.size() == 1);
-    assert(machine.pop() == sum);
+    p = machine.pop();
+    assert(p == sum);
+    static_cast<void>(p);
+    static_cast<void>(sum);
+    static_cast<void>(p);
     assert(machine.size() == 0);
 
     machine.push(100);
     machine.push(4);
     machine.lxor();
-    assert(machine.pop() == 0);
+    p = machine.pop();
+    assert(p == 0);
+    static_cast<void>(p);
 
     machine.push(100);
     machine.push(0);
     machine.lxor();
-    assert(machine.pop() == 1);
+    p = machine.pop();
+    assert(p == 1);
+    static_cast<void>(p);
 
     machine.push(0);
     machine.push(1);
     machine.lxor();
-    assert(machine.pop() == 1);
+    p = machine.pop();
+    assert(p == 1);
+    static_cast<void>(p);
 
     machine.push(1);
     machine.push(1);
     machine.lxor();
-    assert(machine.pop() == 0);
+    p = machine.pop();
+    assert(p == 0);
+    static_cast<void>(p);
 
     machine.push(0);
     machine.push(0);
     machine.land();
-    assert(machine.pop() == 0);
+    p = machine.pop();
+    assert(p == 0);
+    static_cast<void>(p);
 
     machine.push(1);
     machine.push(0);
     machine.land();
-    assert(machine.pop() == 0);
+    p = machine.pop();
+    assert(p == 0);
+    static_cast<void>(p);
 
     machine.push(0);
     machine.push(1);
     machine.land();
-    assert(machine.pop() == 0);
+    p = machine.pop();
+    assert(p == 0);
+    static_cast<void>(p);
 
     machine.push(1);
     machine.push(1);
     machine.land();
-    assert(machine.pop() == 1);
+    p = machine.pop();
+    assert(p == 1);
+    static_cast<void>(p);
 
     machine.push(0);
     machine.push(0);
     machine.lor();
-    assert(machine.pop() == 0);
+    p = machine.pop();
+    assert(p == 0);
+    static_cast<void>(p);
 
     machine.push(1);
     machine.push(0);
     machine.lor();
-    assert(machine.pop() == 1);
+    p = machine.pop();
+    assert(p == 1);
+    static_cast<void>(p);
 
     machine.push(0);
     machine.push(1);
     machine.lor();
-    assert(machine.pop() == 1);
+    p = machine.pop();
+    assert(p == 1);
+    static_cast<void>(p);
 
     machine.push(1);
     machine.push(1);
     machine.lor();
-    assert(machine.pop() == 1);
+    p = machine.pop();
+    assert(p == 1);
+    static_cast<void>(p);
 
     machine.push(0);
     machine.linv();
-    assert(machine.pop() == 1);
+    p = machine.pop();
+    assert(p == 1);
+    static_cast<void>(p);
 
     machine.push(1);
     machine.linv();
-    assert(machine.pop() == 0);
+    p = machine.pop();
+    assert(p == 0);
+    static_cast<void>(p);
 
     machine.push(456123);
     machine.linv();
-    assert(machine.pop() == 0);
+    p = machine.pop();
+    assert(p == 0);
+    static_cast<void>(p);
 
     machine.push(100);
     machine.push(100);
     machine.eq();
-    assert(machine.pop() == 1);
+    p = machine.pop();
+    assert(p == 1);
+    static_cast<void>(p);
 
     machine.push(100);
     machine.push(200);
     machine.eq();
-    assert(machine.pop() == 0);
+    p = machine.pop();
+    assert(p == 0);
+    static_cast<void>(p);
 
     machine.push(100);
     machine.push(100);
     machine.ne();
-    assert(machine.pop() == 0);
+    p = machine.pop();
+    assert(p == 0);
+    static_cast<void>(p);
 
     machine.push(100);
     machine.push(200);
     machine.ne();
-    assert(machine.pop() == 1);
+    p = machine.pop();
+    assert(p == 1);
+    static_cast<void>(p);
 }
