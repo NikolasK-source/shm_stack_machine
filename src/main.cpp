@@ -7,10 +7,11 @@
 
 #include <iostream>
 #include <sysexits.h>
-#include <unistd.h>
-
+#include <thread>
 #include "cxxopts.hpp"
-
+#include "time_str.hpp"
+#include "cxxitimer.hpp"
+#include "cxxsignal.hpp"
 
 int main(int argc, char **argv) {
     cxxopts::Options options(PROJECT_NAME, "Simple stack machine interpreter that can work with shared memory");
@@ -44,6 +45,7 @@ int main(int argc, char **argv) {
         return EX_USAGE;
     }
 
+
     Machine machine(32, opts.count("verbose"), opts.count("debug"));
 
     try {
@@ -60,12 +62,18 @@ int main(int argc, char **argv) {
         return EX_DATAERR;
     }
 
-    // TODO cycle time
+    const auto cycle_ms = machine.get_cycle_time_ms();
+
+    cxxsignal::Ignore timer_handler(SIGALRM);
+    cxxitimer::ITimer_Real timer(static_cast<double>(cycle_ms) / 1000.0);
+
+    timer_handler.establish();
+    timer.start();
 
     bool inf = machine.get_cycles() == 0;
     for (std::size_t i = machine.get_cycles(); i || inf; --i) {
         machine.run();
-        sleep(1);
+        timer_handler.wait();
     }
 
     return 0;
