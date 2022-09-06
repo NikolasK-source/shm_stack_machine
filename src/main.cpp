@@ -5,18 +5,28 @@
 
 #include "Machine.hpp"
 
+#include "cxxitimer.hpp"
+#include "cxxopts.hpp"
+#include "cxxsignal.hpp"
+#include "time_str.hpp"
 #include <iostream>
 #include <sysexits.h>
 #include <thread>
-#include "cxxopts.hpp"
-#include "time_str.hpp"
-#include "cxxitimer.hpp"
-#include "cxxsignal.hpp"
+
+static volatile bool terminate = false;
+
+class TerminateHandler final : public cxxsignal::SignalHandler {
+public:
+    explicit TerminateHandler(int signal_number) : cxxsignal::SignalHandler(signal_number) {}
+
+    void handler(int signal_number, siginfo_t *, ucontext_t *) override { terminate = true; }
+};
 
 int main(int argc, char **argv) {
     cxxopts::Options options(PROJECT_NAME, "Simple stack machine interpreter that can work with shared memory");
 
-    options.add_options()("h,help", "Show usage information", cxxopts::value<bool>()->default_value("false"));
+    options.add_options()("s,stack-size", "Machine stack size (default: 32)", cxxopts::value<std::size_t>());
+    options.add_options()("h,help", "Show usage information");
     options.add_options()("d,debug", "Print what the stack machine executes");
     options.add_options()("v,verbose", "Print program status information");
 
@@ -45,35 +55,73 @@ int main(int argc, char **argv) {
         return EX_USAGE;
     }
 
-
-    Machine machine(32, opts.count("verbose"), opts.count("debug"));
+    TerminateHandler sigint_handler(SIGINT);
+    TerminateHandler sigterm_handler(SIGTERM);
+    TerminateHandler sigquit_handler(SIGQUIT);
 
     try {
-        machine.load_file(opts["file"].as<std::string>());
+        sigint_handler.establish();
+        sigterm_handler.establish();
+        sigquit_handler.establish();
+    } catch (const std::exception &e) {
+        std::cerr << "ERROR: " << e.what() << std::endl;
+        return EX_OSERR;
+    }
+
+    std::size_t stack_size = 32;
+    if (opts.count("stack-size")) { stack_size = opts["stack-size"].as<std::size_t>(); }
+
+    std::unique_ptr<Machine> machine;
+    try {
+        machine = std::make_unique<Machine>(stack_size, opts.count("verbose"), opts.count("debug"));
+    } catch (const std::exception &e) {
+        std::cerr << e.what() << std::endl;
+        return EX_USAGE;
+    }
+
+    try {
+        machine->load_file(opts["file"].as<std::string>());
     } catch (const std::exception &e) {
         std::cerr << e.what() << std::endl;
         return EX_DATAERR;
     }
 
     try {
-        machine.init();
+        machine->init();
     } catch (const std::exception &e) {
         std::cerr << e.what() << std::endl;
         return EX_DATAERR;
     }
 
-    const auto cycle_ms = machine.get_cycle_time_ms();
+    const auto cycle_ms = machine->get_cycle_time_ms();
 
-    cxxsignal::Ignore timer_handler(SIGALRM);
+    cxxsignal::Ignore      timer_handler(SIGALRM);
     cxxitimer::ITimer_Real timer(static_cast<double>(cycle_ms) / 1000.0);
 
-    timer_handler.establish();
-    timer.start();
+    try {
+        timer_handler.establish();
+        timer.start();
+    } catch (const std::exception &e) {
+        std::cerr << "ERROR: " << e.what() << std::endl;
+        return EX_OSERR;
+    }
 
-    bool inf = machine.get_cycles() == 0;
-    for (std::size_t i = machine.get_cycles(); i || inf; --i) {
-        machine.run();
-        timer_handler.wait();
+    bool inf = machine->get_cycles() == 0;
+    for (std::size_t i = machine->get_cycles(); (i || inf) && !terminate; --i) {
+        try {
+            machine->run();
+        } catch (const std::exception &e) {
+            std::cerr << "ERROR: execution failed: " << e.what() << std::endl;
+            return EX_DATAERR;
+        }
+
+        try {
+            timer_handler.wait();
+        } catch (const std::exception &e) {
+            if (terminate) break;
+            std::cerr << "ERROR: " << e.what() << std::endl;
+            return EX_OSERR;
+        }
     }
 
     return 0;
