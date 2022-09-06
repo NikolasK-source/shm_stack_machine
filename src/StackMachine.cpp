@@ -91,7 +91,7 @@ static T ipow(T x, T p) {
 /**********************************************************************************************************************/
 /**********************************************************************************************************************/
 
-StackMachine::StackMachine(bool verbose, std::size_t max_stack) : MAX_STACK(max_stack), verbose(verbose) {
+StackMachine::StackMachine(bool verbose, std::size_t max_stack) : verbose(verbose), MAX_STACK(max_stack) {
     if (MAX_STACK < MIN_STACK) throw std::invalid_argument("max stack size to small");
 }
 

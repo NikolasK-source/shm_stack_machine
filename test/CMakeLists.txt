@@ -23,7 +23,7 @@ endif()
 # statemachine test target
 #
 
-add_executable(test_state_machine test_stack_machine.cpp ../src/StackMachine.cpp ../src/StackMachine.hpp)
+add_executable(test_state_machine test_stack_machine.cpp ../src/StackMachine.cpp ../src/StackMachine.hpp ../src/time_str.cpp)
 target_include_directories(test_state_machine PUBLIC ../src)
 add_test(test_state_machine test_state_machine)
 enable_warnings(test_state_machine)

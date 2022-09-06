@@ -5,7 +5,7 @@
 
 # warnings that are valid for gcc and clang
 function(commonwarn target)
-    target_compile_options(${target} PUBLIC -Wall -Wextra -Werror -pedantic -pedantic-errors)
+    target_compile_options(${target} PUBLIC -Wall -Wextra -Werror)
 
     # see https://gcc.gnu.org/onlinedocs/gcc-4.3.2/gcc/Warning-Options.html for more details
 
