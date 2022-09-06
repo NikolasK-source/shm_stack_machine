@@ -12,6 +12,7 @@ modules:
       - -DCMAKE_BUILD_TYPE=Release
       - -DCLANG_FORMAT=OFF
       - -DCOMPILER_WARNINGS=OFF
+      - -DBUILD_DOC=OFF
     sources:
       - type: dir
         path: .

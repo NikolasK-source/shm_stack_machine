@@ -34,7 +34,7 @@ int main() {
         const int         EXPECT_EXIT = 0;
         const std::string EXPECT_OUT  = "1\n";
 
-        std::pair<std::string, int> result = exec("../shm-stack-compute ../../test/programs/1.stackm");
+        std::pair<std::string, int> result = exec("../shm-stack-machine ../../test/programs/1.stackm");
         if (result.second != EXPECT_EXIT) {
             std::cerr << "test 1: wrong exit code" << std::endl;
             return EXIT_FAILURE;
@@ -50,7 +50,7 @@ int main() {
         const int         EXPECT_EXIT = 0;
         const std::string EXPECT_OUT  = "3.141\n3.141\n";
 
-        std::pair<std::string, int> result = exec("../shm-stack-compute ../../test/programs/2.stackm");
+        std::pair<std::string, int> result = exec("../shm-stack-machine ../../test/programs/2.stackm");
         if (result.second != EXPECT_EXIT) {
             std::cerr << "test 2: wrong exit code" << std::endl;
             return EXIT_FAILURE;
@@ -67,7 +67,7 @@ int main() {
         const std::string EXPECT_OUT  = "0.0256\n0.0256\n0.16\n0.294723\n-3.66516\n-1.59176\n-5.28771\n0.0255972\n0."
                                         "999672\n0.0256028\n1.54519\n0.0255944\n";
 
-        std::pair<std::string, int> result = exec("../shm-stack-compute ../../test/programs/3.stackm");
+        std::pair<std::string, int> result = exec("../shm-stack-machine ../../test/programs/3.stackm");
         if (result.second != EXPECT_EXIT) {
             std::cerr << "test 2: wrong exit code" << std::endl;
             return EXIT_FAILURE;
@@ -83,7 +83,7 @@ int main() {
         const int         EXPECT_EXIT = 0;
         const std::string EXPECT_OUT  = "1\n1\n1\n1\n";
 
-        std::pair<std::string, int> result = exec("../shm-stack-compute ../../test/programs/4.stackm");
+        std::pair<std::string, int> result = exec("../shm-stack-machine ../../test/programs/4.stackm");
         if (result.second != EXPECT_EXIT) {
             std::cerr << "test 1: wrong exit code" << std::endl;
             return EXIT_FAILURE;
@@ -99,7 +99,7 @@ int main() {
         const int         EXPECT_EXIT = 0;
         const std::string EXPECT_OUT  = "18446744073709551615\n-1\n";
 
-        std::pair<std::string, int> result = exec("../shm-stack-compute ../../test/programs/5.stackm");
+        std::pair<std::string, int> result = exec("../shm-stack-machine ../../test/programs/5.stackm");
         if (result.second != EXPECT_EXIT) {
             std::cerr << "test 1: wrong exit code" << std::endl;
             return EXIT_FAILURE;
@@ -115,7 +115,7 @@ int main() {
         const int         EXPECT_EXIT = 0;
         const std::string EXPECT_OUT  = "3\n1\n";
 
-        std::pair<std::string, int> result = exec("../shm-stack-compute ../../test/programs/6.stackm");
+        std::pair<std::string, int> result = exec("../shm-stack-machine ../../test/programs/6.stackm");
         if (result.second != EXPECT_EXIT) {
             std::cerr << "test 1: wrong exit code" << std::endl;
             return EXIT_FAILURE;
@@ -131,7 +131,7 @@ int main() {
         const int         EXPECT_EXIT = 0;
         const std::string EXPECT_OUT  = "13\n400\n8\n50\n";
 
-        std::pair<std::string, int> result = exec("../shm-stack-compute ../../test/programs/7.stackm");
+        std::pair<std::string, int> result = exec("../shm-stack-machine ../../test/programs/7.stackm");
         if (result.second != EXPECT_EXIT) {
             std::cerr << "test 1: wrong exit code" << std::endl;
             return EXIT_FAILURE;
