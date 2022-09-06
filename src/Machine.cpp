@@ -172,6 +172,9 @@ void Machine::run() {
         std::cerr << now_str() << " >>>>> Execute cycle " << std::dec << cycle_counter << std::endl;
         ++cycle_counter;
     }
+
+    stack_machine.clr();
+
     ip = 0;
     while (true) {
         auto instr = instructions.at(ip).get();

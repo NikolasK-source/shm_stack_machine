@@ -102,20 +102,20 @@ StackMachine::stack_t MemoryReal::load_bit(std::size_t cell, std::size_t index, 
         }
         case 2: {
             uint16_t data = *reinterpret_cast<const uint8_t *>(get_data(cell * cell_size));
-            if (endian::HostEndianness.isLittle() != little_endian) endian::swap(data);
+            if (endian::HostEndianness.isLittle() != little_endian) data = endian::swap(data);
             uint16_t ret = (data >> index) & 0x1;
             return ret;
         }
         case 4: {
             uint32_t data = *reinterpret_cast<const uint32_t *>(get_data(cell * cell_size));
-            if (endian::HostEndianness.isLittle() != little_endian) endian::swap(data);
+            if (endian::HostEndianness.isLittle() != little_endian) data = endian::swap(data);
             uint32_t ret = (data >> index) & 0x1;
             return ret;
         }
 
         case 8: {
             uint64_t data = *reinterpret_cast<const uint64_t *>(get_data(cell * cell_size));
-            if (endian::HostEndianness.isLittle() != little_endian) endian::swap(data);
+            if (endian::HostEndianness.isLittle() != little_endian) data = endian::swap(data);
             uint64_t ret = (data >> index) & 0x1;
             return ret;
         }
@@ -135,7 +135,7 @@ StackMachine::stack_t MemoryReal::load_16(std::size_t cell, bool little_endian) 
     if ((cell * cell_size + 1) >= get_size()) throw std::out_of_range("memory cell out of range");
 
     auto data = *reinterpret_cast<const uint16_t *>(get_data(cell * cell_size));
-    if (endian::HostEndianness.isLittle() != little_endian) endian::swap(data);
+    if (endian::HostEndianness.isLittle() != little_endian) data = endian::swap(data);
     return data;
 }
 
@@ -148,7 +148,7 @@ StackMachine::stack_t MemoryReal::load_32(std::size_t cell, bool little_endian, 
         uint16_t reg16[2];
     };
     data = *reinterpret_cast<const uint32_t *>(get_data(cell * cell_size));
-    if (endian::HostEndianness.isLittle() != little_endian) endian::swap(data);
+    if (endian::HostEndianness.isLittle() != little_endian) data = endian::swap(data);
     if (reg_swap) std::swap(reg16[0], reg16[1]);
     return data;
 }
@@ -163,7 +163,7 @@ StackMachine::stack_t MemoryReal::load_64(std::size_t cell, bool little_endian, 
         uint32_t reg32[2];
     };
     data = *reinterpret_cast<const uint32_t *>(get_data(cell * cell_size));
-    if (endian::HostEndianness.isLittle() != little_endian) endian::swap(data);
+    if (endian::HostEndianness.isLittle() != little_endian) data = endian::swap(data);
     if (reg_swap == 4) std::swap(reg32[0], reg32[1]);
     else if (reg_swap == 2) {
         std::swap(reg16[0], reg16[3]);
@@ -189,32 +189,35 @@ void MemoryReal::store_bit(StackMachine::stack_t data, std::size_t cell, std::si
         case 2: {
             typedef uint16_t mem_t;
             mem_t            data = *reinterpret_cast<mem_t *>(get_data(cell * cell_size));  // read data
-            if (endian::HostEndianness.isLittle() != little_endian) endian::swap(data);  // change endianness to host
-            data &= ~(0x1 << index);                                                     // mask bit
-            if (store_bit) data |= 0x1 << index;                                         // set bit
-            if (endian::HostEndianness.isLittle() != little_endian) endian::swap(data);  // revert endianness
-            *reinterpret_cast<mem_t *>(get_data(cell * cell_size)) = data;               // write back
+            if (endian::HostEndianness.isLittle() != little_endian)
+                data = endian::swap(data);        // change endianness to host
+            data &= ~(0x1 << index);              // mask bit
+            if (store_bit) data |= 0x1 << index;  // set bit
+            if (endian::HostEndianness.isLittle() != little_endian) data = endian::swap(data);  // revert endianness
+            *reinterpret_cast<mem_t *>(get_data(cell * cell_size)) = data;                      // write back
             break;
         }
         case 4: {
             typedef uint32_t mem_t;
             mem_t            data = *reinterpret_cast<mem_t *>(get_data(cell * cell_size));  // read data
-            if (endian::HostEndianness.isLittle() != little_endian) endian::swap(data);  // change endianness to host
-            data &= ~(0x1 << index);                                                     // mask bit
-            if (store_bit) data |= 0x1 << index;                                         // set bit
-            if (endian::HostEndianness.isLittle() != little_endian) endian::swap(data);  // revert endianness
-            *reinterpret_cast<mem_t *>(get_data(cell * cell_size)) = data;               // write back
+            if (endian::HostEndianness.isLittle() != little_endian)
+                data = endian::swap(data);        // change endianness to host
+            data &= ~(0x1 << index);              // mask bit
+            if (store_bit) data |= 0x1 << index;  // set bit
+            if (endian::HostEndianness.isLittle() != little_endian) data = endian::swap(data);  // revert endianness
+            *reinterpret_cast<mem_t *>(get_data(cell * cell_size)) = data;                      // write back
             break;
         }
 
         case 8: {
             typedef uint64_t mem_t;
             mem_t            data = *reinterpret_cast<mem_t *>(get_data(cell * cell_size));  // read data
-            if (endian::HostEndianness.isLittle() != little_endian) endian::swap(data);  // change endianness to host
-            data &= ~(0x1 << index);                                                     // mask bit
-            if (store_bit) data |= 0x1 << index;                                         // set bit
-            if (endian::HostEndianness.isLittle() != little_endian) endian::swap(data);  // revert endianness
-            *reinterpret_cast<mem_t *>(get_data(cell * cell_size)) = data;               // write back
+            if (endian::HostEndianness.isLittle() != little_endian)
+                data = endian::swap(data);        // change endianness to host
+            data &= ~(0x1 << index);              // mask bit
+            if (store_bit) data |= 0x1 << index;  // set bit
+            if (endian::HostEndianness.isLittle() != little_endian) data = endian::swap(data);  // revert endianness
+            *reinterpret_cast<mem_t *>(get_data(cell * cell_size)) = data;                      // write back
             break;
         }
 
@@ -233,7 +236,7 @@ void MemoryReal::store_16(StackMachine::stack_t data, std::size_t cell, bool lit
     if ((cell * cell_size + 1) >= get_size()) throw std::out_of_range("memory cell out of range");
 
     auto d = static_cast<uint16_t>(data);
-    if (endian::HostEndianness.isLittle() != little_endian) endian::swap(d);
+    if (endian::HostEndianness.isLittle() != little_endian) d = endian::swap(d);
     *reinterpret_cast<uint16_t *>(get_data(cell * cell_size)) = d;
 }
 
@@ -247,7 +250,7 @@ void MemoryReal::store_32(StackMachine::stack_t data, std::size_t cell, bool lit
     };
 
     d = static_cast<uint32_t>(data);
-    if (endian::HostEndianness.isLittle() != little_endian) endian::swap(d);
+    if (endian::HostEndianness.isLittle() != little_endian) d = endian::swap(d);
     if (reg_swap) std::swap(reg16[0], reg16[1]);
     *reinterpret_cast<uint32_t *>(get_data(cell * cell_size)) = d;
 }
@@ -263,7 +266,7 @@ void MemoryReal::store_64(StackMachine::stack_t data, std::size_t cell, bool lit
     };
 
     d = static_cast<uint64_t>(data);
-    if (endian::HostEndianness.isLittle() != little_endian) endian::swap(d);
+    if (endian::HostEndianness.isLittle() != little_endian) d = endian::swap(d);
     if (reg_swap == 4) std::swap(reg32[0], reg32[1]);
     else if (reg_swap == 2) {
         std::swap(reg16[0], reg16[3]);

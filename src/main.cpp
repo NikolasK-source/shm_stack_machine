@@ -22,6 +22,25 @@ public:
     void handler(int signal_number, siginfo_t *, ucontext_t *) override { terminate = true; }
 };
 
+class CycleTimeWarning final : public cxxsignal::SignalHandler {
+private:
+    bool waiting;
+
+public:
+    explicit CycleTimeWarning(int signal_number) : cxxsignal::SignalHandler(signal_number), waiting(false) {}
+
+    void handler(int signal_number, siginfo_t *, ucontext_t *context) override {
+        if (!waiting) std::cerr << now_str() << " WARNING: cycle time exceeded" << std::endl;
+    }
+
+    bool _wait() {
+        waiting  = true;
+        auto ret = wait();
+        waiting  = false;
+        return ret;
+    }
+};
+
 int main(int argc, char **argv) {
     cxxopts::Options options(PROJECT_NAME, "Simple stack machine interpreter that can work with shared memory");
 
@@ -64,7 +83,7 @@ int main(int argc, char **argv) {
         sigterm_handler.establish();
         sigquit_handler.establish();
     } catch (const std::exception &e) {
-        std::cerr << "ERROR: " << e.what() << std::endl;
+        std::cerr << now_str() << " ERROR: " << e.what() << std::endl;
         return EX_OSERR;
     }
 
@@ -75,34 +94,34 @@ int main(int argc, char **argv) {
     try {
         machine = std::make_unique<Machine>(stack_size, opts.count("verbose"), opts.count("debug"));
     } catch (const std::exception &e) {
-        std::cerr << e.what() << std::endl;
+        std::cerr << now_str() << " ERROR: " << e.what() << std::endl;
         return EX_USAGE;
     }
 
     try {
         machine->load_file(opts["file"].as<std::string>());
     } catch (const std::exception &e) {
-        std::cerr << e.what() << std::endl;
+        std::cerr << now_str() << " ERROR: " << e.what() << std::endl;
         return EX_DATAERR;
     }
 
     try {
         machine->init();
     } catch (const std::exception &e) {
-        std::cerr << e.what() << std::endl;
+        std::cerr << now_str() << " ERROR: " << e.what() << std::endl;
         return EX_DATAERR;
     }
 
     const auto cycle_ms = machine->get_cycle_time_ms();
 
-    cxxsignal::Ignore      timer_handler(SIGALRM);
+    CycleTimeWarning       timer_handler(SIGALRM);
     cxxitimer::ITimer_Real timer(static_cast<double>(cycle_ms) / 1000.0);
 
     try {
         timer_handler.establish();
         timer.start();
     } catch (const std::exception &e) {
-        std::cerr << "ERROR: " << e.what() << std::endl;
+        std::cerr << now_str() << " ERROR: " << e.what() << std::endl;
         return EX_OSERR;
     }
 
@@ -111,15 +130,15 @@ int main(int argc, char **argv) {
         try {
             machine->run();
         } catch (const std::exception &e) {
-            std::cerr << "ERROR: execution failed: " << e.what() << std::endl;
+            std::cerr << now_str() << " ERROR: execution failed: " << e.what() << std::endl;
             return EX_DATAERR;
         }
 
         try {
-            timer_handler.wait();
+            timer_handler._wait();
         } catch (const std::exception &e) {
             if (terminate) break;
-            std::cerr << "ERROR: " << e.what() << std::endl;
+            std::cerr << now_str() << "ERROR: " << e.what() << std::endl;
             return EX_OSERR;
         }
     }
